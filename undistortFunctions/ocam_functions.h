@@ -9,8 +9,10 @@
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
-#include <cv.h>
-#include <highgui.h>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include <tinyxml2.h>
 
 
 #define CMV_MAX_BUF 1024
@@ -36,7 +38,13 @@ struct ocam_model
  This function reads the parameters of the omnidirectional camera model from 
  a given TXT file
 ------------------------------------------------------------------------------*/
-int get_ocam_model(struct ocam_model *myocam_model, char *filename);
+int get_ocam_model(struct ocam_model &myocam_model, const char *filename);
+
+/*------------------------------------------------------------------------------
+ This function reads the parameters of the omnidirectional camera model from 
+ a given XML file
+------------------------------------------------------------------------------*/
+int get_ocam_model_from_xml(struct ocam_model &myocam_model, int camera_id, const char *filename);
 
 /*------------------------------------------------------------------------------
  WORLD2CAM projects a 3D point on to the image
@@ -50,10 +58,10 @@ int get_ocam_model(struct ocam_model *myocam_model, char *filename);
     Copyright (C) 2009 DAVIDE SCARAMUZZA
     Author: Davide Scaramuzza - email: davide.scaramuzza@ieee.org
   
-    NOTE: the coordinates of "point2D" and "center" are already according to the C
-    convention, that is, start from 0 instead than from 1.
+    NOTE: the coordinates of "point2D" and "center" are already according the C
+    convention, that is, from the origin (0,0) instead than from 1.
 ------------------------------------------------------------------------------*/
-void world2cam(double point2D[2], double point3D[3], struct ocam_model *myocam_model);
+void world2cam(double point2D[2], double point3D[3], struct ocam_model &myocam_model);
 
 /*------------------------------------------------------------------------------
  CAM2WORLD projects a 2D point onto the unit sphere
@@ -72,12 +80,12 @@ void world2cam(double point2D[2], double point3D[3], struct ocam_model *myocam_m
     NOTE: the coordinates of "point2D" and "center" are already according to the C
     convention, that is, start from 0 instead than from 1.
 ------------------------------------------------------------------------------*/
-void cam2world(double point3D[3], double point2D[2], struct ocam_model *myocam_model);
+void cam2world(double point3D[3], double point2D[2], struct ocam_model &myocam_model);
 /*------------------------------------------------------------------------------
  Create Look Up Table for undistorting the image into a perspective image 
  It assumes the the final image plane is perpendicular to the camera axis
 ------------------------------------------------------------------------------*/
-void create_perspecive_undistortion_LUT( CvMat *mapx, CvMat *mapy, struct ocam_model *ocam_model, float sf);
+void create_perspecive_undistortion_LUT( cv::Mat &mapx, cv::Mat &mapy, struct ocam_model &ocam_model, float sf);
 
 /*------------------------------------------------------------------------------
  Create Look Up Table for undistorting the image into a panoramic image 
@@ -86,4 +94,4 @@ void create_perspecive_undistortion_LUT( CvMat *mapx, CvMat *mapy, struct ocam_m
  The region to undistorted in contained between Rmin and Rmax
  xc, yc are the row and column coordinates of the image center
 ------------------------------------------------------------------------------*/
-void create_panoramic_undistortion_LUT ( CvMat *mapx, CvMat *mapy, float Rmin, float Rmax, float xc, float yc );
+void create_panoramic_undistortion_LUT ( cv::Mat &mapx, cv::Mat &mapy, float Rmin, float Rmax, float xc, float yc );
